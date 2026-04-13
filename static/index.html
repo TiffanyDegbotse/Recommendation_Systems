@@ -15,18 +15,15 @@
   --s2:       #0f0f22;
   --accent:   #6d28d9;
   --accent2:  #0891b2;
-  --gold:     #d97706;
   --text:     #f1f5f9;
   --muted:    #475569;
   --border:   rgba(109,40,217,0.18);
 }
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
-/* ── Base ── */
 html, body {
   min-height: 100vh;
   background: var(--bg);
@@ -35,7 +32,6 @@ html, body {
   overflow-x: hidden;
 }
 
-/* ── Noise overlay ── */
 body::before {
   content: '';
   position: fixed;
@@ -46,329 +42,183 @@ body::before {
   opacity: 0.4;
 }
 
-/* ── Ambient glows ── */
 .glow-1 {
-  position: fixed;
-  width: 700px; height: 700px;
-  border-radius: 50%;
+  position: fixed; width: 700px; height: 700px; border-radius: 50%;
   background: radial-gradient(circle, rgba(109,40,217,0.12) 0%, transparent 65%);
-  top: -200px; left: -200px;
-  pointer-events: none;
-  z-index: 0;
+  top: -200px; left: -200px; pointer-events: none; z-index: 0;
   animation: drift1 20s ease-in-out infinite alternate;
 }
 .glow-2 {
-  position: fixed;
-  width: 500px; height: 500px;
-  border-radius: 50%;
+  position: fixed; width: 500px; height: 500px; border-radius: 50%;
   background: radial-gradient(circle, rgba(8,145,178,0.1) 0%, transparent 65%);
-  bottom: -100px; right: -100px;
-  pointer-events: none;
-  z-index: 0;
+  bottom: -100px; right: -100px; pointer-events: none; z-index: 0;
   animation: drift2 15s ease-in-out infinite alternate;
 }
+@keyframes drift1 { from { transform: translate(0,0); } to { transform: translate(80px,60px); } }
+@keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(-60px,-40px); } }
 
-@keyframes drift1 {
-  from { transform: translate(0,0); }
-  to   { transform: translate(80px, 60px); }
-}
-@keyframes drift2 {
-  from { transform: translate(0,0); }
-  to   { transform: translate(-60px, -40px); }
-}
-
-/* ── Layout ── */
 .container {
-  position: relative;
-  z-index: 1;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto; padding: 0 2rem;
 }
 
-/* ── Header ── */
 header {
   padding: 3rem 0 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  display: flex; align-items: flex-end; justify-content: space-between;
 }
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.3em; color: var(--muted); }
+.badge { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); border: 1px solid var(--border); padding: 0.3rem 0.7rem; border-radius: 100px; }
 
-.logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1rem;
-  letter-spacing: 0.3em;
-  color: var(--muted);
-}
-
-.badge {
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  padding: 0.3rem 0.7rem;
-  border-radius: 100px;
-}
-
-/* ── Hero ── */
-.hero {
-  padding: 4rem 0 3rem;
-  position: relative;
-}
-
+.hero { padding: 4rem 0 3rem; }
 .hero-eyebrow {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.25em;
-  color: var(--accent2);
-  text-transform: uppercase;
-  margin-bottom: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  font-size: 0.7rem; letter-spacing: 0.25em; color: var(--accent2);
+  text-transform: uppercase; margin-bottom: 1.2rem;
+  display: flex; align-items: center; gap: 0.75rem;
 }
-
-.hero-eyebrow::before {
-  content: '';
-  width: 2rem; height: 1px;
-  background: var(--accent2);
-}
-
-.hero-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(4rem, 10vw, 8.5rem);
-  line-height: 0.9;
-  letter-spacing: 0.03em;
-  margin-bottom: 1.5rem;
-}
-
+.hero-eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--accent2); }
+.hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(4rem,10vw,8.5rem); line-height: 0.9; letter-spacing: 0.03em; margin-bottom: 1.5rem; }
 .hero-title .line1 { display: block; color: var(--text); }
 .hero-title .line2 {
   display: block;
   background: linear-gradient(100deg, #6d28d9 0%, #0891b2 60%, #6d28d9 100%);
   background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   animation: flow 6s linear infinite;
 }
+@keyframes flow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+.hero-desc { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 1.15rem; color: var(--muted); max-width: 420px; line-height: 1.7; }
 
-@keyframes flow {
-  0%   { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-
-.hero-desc {
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  font-size: 1.15rem;
-  color: var(--muted);
-  max-width: 420px;
-  line-height: 1.7;
-}
-
-/* ── Stats strip ── */
-.stats {
-  display: flex;
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 3rem;
-  background: var(--s1);
-}
-
-.stat {
-  flex: 1;
-  padding: 1.25rem 1.5rem;
-  border-right: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
-}
+/* Stats */
+.stats { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 3rem; background: var(--s1); }
+.stat { flex: 1; padding: 1.25rem 1.5rem; border-right: 1px solid var(--border); position: relative; overflow: hidden; }
 .stat:last-child { border-right: none; }
-.stat::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  opacity: 0;
-  transition: opacity 0.3s;
-}
+.stat::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.3s; }
 .stat:hover::after { opacity: 1; }
+.stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; background: linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 0.3rem; }
+.stat-label { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
 
-.stat-val {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2rem;
-  background: linear-gradient(135deg, #a78bfa, #67e8f9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
-  margin-bottom: 0.3rem;
-}
+/* Divider */
+.divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 2.5rem 0; }
 
-.stat-label {
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-/* ── Divider ── */
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin: 2.5rem 0;
-}
-
-/* ── Mood section ── */
+/* Section label */
 .section-label {
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  font-size: 0.65rem; letter-spacing: 0.2em; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 0.75rem;
 }
-.section-label::after {
-  content: '';
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── Text Search ── */
+.text-search-wrap {
+  display: flex; gap: 0.5rem; margin-bottom: 1rem;
+}
+.vibe-input {
   flex: 1;
-  height: 1px;
-  background: var(--border);
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1.25rem;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.vibe-input:focus {
+  border-color: rgba(109,40,217,0.6);
+  box-shadow: 0 0 0 3px rgba(109,40,217,0.1);
+}
+.vibe-input::placeholder { color: var(--muted); }
+.vibe-search-btn {
+  background: linear-gradient(135deg, #6d28d9, #0891b2);
+  border: none; border-radius: 10px;
+  padding: 0.9rem 1.5rem;
+  color: white; font-family: 'Space Mono', monospace;
+  font-size: 1rem; cursor: pointer; transition: all 0.2s;
+}
+.vibe-search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(109,40,217,0.4); }
+
+/* Mood hints */
+.mood-hints {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  margin-bottom: 2rem;
+}
+.hint-label {
+  font-size: 0.6rem; letter-spacing: 0.1em;
+  color: var(--muted); align-self: center;
+  text-transform: uppercase; margin-right: 0.25rem;
+}
+.hint-pill {
+  font-size: 0.6rem; letter-spacing: 0.08em;
+  padding: 0.2rem 0.6rem; border-radius: 100px;
+  border: 1px solid var(--border); color: var(--muted);
+  background: transparent; cursor: pointer;
+  transition: all 0.15s; text-transform: lowercase;
+}
+.hint-pill:hover {
+  border-color: rgba(109,40,217,0.5);
+  color: #c4b5fd; background: rgba(109,40,217,0.08);
 }
 
-/* ── Mood grid ── */
+/* Matched moods display */
+.matched-moods-row {
+  display: none; align-items: center; gap: 0.5rem;
+  margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.matched-moods-row.visible { display: flex; }
+.matched-label { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
+.matched-tag {
+  font-size: 0.6rem; padding: 0.2rem 0.6rem; border-radius: 100px;
+  background: rgba(109,40,217,0.15); border: 1px solid rgba(109,40,217,0.4);
+  color: #c4b5fd; letter-spacing: 0.08em;
+}
+
+/* Mood grid */
 .mood-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.6rem;
-  margin-bottom: 3rem;
+  display: grid; grid-template-columns: repeat(5,1fr);
+  gap: 0.6rem; margin-bottom: 3rem;
 }
-
-@media (max-width: 768px) {
-  .mood-grid { grid-template-columns: repeat(3, 1fr); }
-}
+@media (max-width: 768px) { .mood-grid { grid-template-columns: repeat(3,1fr); } }
 
 .mood-btn {
-  position: relative;
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
+  position: relative; background: var(--s1);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 1rem 0.75rem; cursor: pointer; transition: all 0.2s ease;
+  text-align: center; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
 }
-
 .mood-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
+  content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s;
   background: radial-gradient(circle at center, var(--mood-color, #6d28d9) 0%, transparent 70%);
 }
-
 .mood-btn:hover::before, .mood-btn.active::before { opacity: 0.12; }
-
-.mood-btn:hover {
-  border-color: var(--mood-color, #6d28d9);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-}
-
-.mood-btn.active {
-  border-color: var(--mood-color, #6d28d9);
-  box-shadow: 0 0 0 1px var(--mood-color, #6d28d9),
-              0 8px 30px rgba(0,0,0,0.4);
-}
-
+.mood-btn:hover { border-color: var(--mood-color, #6d28d9); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+.mood-btn.active { border-color: var(--mood-color, #6d28d9); box-shadow: 0 0 0 1px var(--mood-color, #6d28d9), 0 8px 30px rgba(0,0,0,0.4); }
 .mood-emoji { font-size: 1.4rem; line-height: 1; }
+.mood-name { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+.mood-btn:hover .mood-name, .mood-btn.active .mood-name { color: var(--text); }
 
-.mood-name {
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  transition: color 0.2s;
-}
-
-.mood-btn:hover .mood-name,
-.mood-btn.active .mood-name {
-  color: var(--text);
-}
-
-/* ── Results ── */
-#results-section {
-  display: none;
-  animation: fadeUp 0.5s ease forwards;
-}
-
+/* Results */
+#results-section { display: none; animation: fadeUp 0.5s ease forwards; }
 #results-section.visible { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+.results-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.5rem; }
+.results-mood { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; line-height: 1; background: linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.results-count { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); }
 
-.results-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.results-mood {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 3rem;
-  line-height: 1;
-  background: linear-gradient(135deg, #a78bfa, #67e8f9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.results-count {
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-}
-
-/* ── Song card ── */
+/* Song cards */
 .song-list { display: flex; flex-direction: column; gap: 0.5rem; }
-
 .song-card {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  background: var(--s1); border: 1px solid var(--border); border-radius: 10px;
   padding: 1rem 1.25rem;
-  display: grid;
-  grid-template-columns: 2.5rem 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  animation: slideIn 0.4s ease forwards;
-  opacity: 0;
+  display: grid; grid-template-columns: 2.5rem 1fr auto;
+  align-items: center; gap: 1rem;
+  cursor: pointer; text-decoration: none; color: inherit;
+  transition: all 0.2s ease; position: relative; overflow: hidden;
+  animation: slideIn 0.4s ease forwards; opacity: 0;
 }
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
+@keyframes slideIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
 .song-card:nth-child(1)  { animation-delay: 0.05s; }
 .song-card:nth-child(2)  { animation-delay: 0.1s;  }
 .song-card:nth-child(3)  { animation-delay: 0.15s; }
@@ -379,205 +229,50 @@ header {
 .song-card:nth-child(8)  { animation-delay: 0.4s;  }
 .song-card:nth-child(9)  { animation-delay: 0.45s; }
 .song-card:nth-child(10) { animation-delay: 0.5s;  }
-
-.song-card::after {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, var(--accent), var(--accent2));
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.song-card:hover {
-  border-color: rgba(109,40,217,0.4);
-  background: var(--s2);
-  transform: translateX(4px);
-}
-
+.song-card::after { content: ''; position: absolute; left:0; top:0; bottom:0; width:3px; background: linear-gradient(180deg,var(--accent),var(--accent2)); opacity:0; transition:opacity 0.2s; }
+.song-card:hover { border-color: rgba(109,40,217,0.4); background: var(--s2); transform: translateX(4px); }
 .song-card:hover::after { opacity: 1; }
-
-.song-rank {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem;
-  color: rgba(109,40,217,0.35);
-  line-height: 1;
-  text-align: center;
-  transition: color 0.2s;
-}
-
+.song-rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: rgba(109,40,217,0.35); line-height:1; text-align:center; transition:color 0.2s; }
 .song-card:hover .song-rank { color: rgba(109,40,217,0.7); }
-
 .song-info { min-width: 0; }
-
-.song-id {
-  font-size: 0.72rem;
-  color: var(--text);
-  margin-bottom: 0.4rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
+.song-id { font-size: 0.72rem; color: var(--text); margin-bottom: 0.4rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .song-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; }
-
-.tag {
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
-  padding: 0.15rem 0.5rem;
-  border-radius: 100px;
-  border: 1px solid rgba(8,145,178,0.3);
-  color: #67e8f9;
-  background: rgba(8,145,178,0.06);
-  text-transform: uppercase;
-}
-
+.tag { font-size:0.58rem; letter-spacing:0.08em; padding:0.15rem 0.5rem; border-radius:100px; border:1px solid rgba(8,145,178,0.3); color:#67e8f9; background:rgba(8,145,178,0.06); text-transform:uppercase; }
 .song-meta { text-align: right; }
+.song-score { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.4rem; }
+.score-track { width:60px; height:3px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; margin-left:auto; margin-bottom:0.5rem; }
+.score-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,#6d28d9,#0891b2); }
+.listen-btn { font-size:0.58rem; letter-spacing:0.12em; color:var(--accent); text-decoration:none; border:1px solid rgba(109,40,217,0.3); padding:0.2rem 0.6rem; border-radius:100px; transition:all 0.2s; display:inline-block; white-space:nowrap; }
+.listen-btn:hover { background:rgba(109,40,217,0.15); border-color:var(--accent); color:#c4b5fd; }
 
-.song-score {
-  font-size: 0.7rem;
-  color: var(--muted);
-  margin-bottom: 0.4rem;
+/* Loading */
+.loading { display:none; text-align:center; padding:3rem 0; }
+.loading.visible { display:block; }
+.spinner { width:40px; height:40px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 1rem; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-text { font-size:0.7rem; letter-spacing:0.2em; color:var(--muted); animation:pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+
+/* Error toast */
+.error-toast {
+  display: none; background: rgba(220,38,38,0.1);
+  border: 1px solid rgba(220,38,38,0.3); border-radius: 10px;
+  padding: 0.85rem 1.25rem; margin-bottom: 1.5rem;
+  font-size: 0.7rem; color: #fca5a5; letter-spacing: 0.05em;
 }
+.error-toast.visible { display: block; }
 
-.score-track {
-  width: 60px;
-  height: 3px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-left: auto;
-  margin-bottom: 0.5rem;
-}
+/* Architecture */
+.arch-panel { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:2rem; margin:3rem 0; }
+.arch-title { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:0.1em; margin-bottom:1.5rem; color:var(--muted); }
+.arch-flow { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; justify-content:center; }
+.arch-node { background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; flex:1; min-width:120px; }
+.arch-node-title { font-size:0.65rem; letter-spacing:0.1em; color:var(--accent2); text-transform:uppercase; margin-bottom:0.3rem; }
+.arch-node-sub { font-size:0.6rem; color:var(--muted); }
+.arch-arrow { color:var(--accent); font-size:1.2rem; flex-shrink:0; }
 
-.score-fill {
-  height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #6d28d9, #0891b2);
-}
-
-.listen-btn {
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  color: var(--accent);
-  text-decoration: none;
-  border: 1px solid rgba(109,40,217,0.3);
-  padding: 0.2rem 0.6rem;
-  border-radius: 100px;
-  transition: all 0.2s;
-  display: inline-block;
-  white-space: nowrap;
-}
-
-.listen-btn:hover {
-  background: rgba(109,40,217,0.15);
-  border-color: var(--accent);
-  color: #c4b5fd;
-}
-
-/* ── Loading ── */
-.loading {
-  display: none;
-  text-align: center;
-  padding: 3rem 0;
-}
-
-.loading.visible { display: block; }
-
-.spinner {
-  width: 40px; height: 40px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-text {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-/* ── Architecture panel ── */
-.arch-panel {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 2rem;
-  margin: 3rem 0;
-}
-
-.arch-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.5rem;
-  letter-spacing: 0.1em;
-  margin-bottom: 1.5rem;
-  color: var(--muted);
-}
-
-.arch-flow {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.arch-node {
-  background: var(--s2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  text-align: center;
-  flex: 1;
-  min-width: 120px;
-}
-
-.arch-node-title {
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  color: var(--accent2);
-  text-transform: uppercase;
-  margin-bottom: 0.3rem;
-}
-
-.arch-node-sub {
-  font-size: 0.6rem;
-  color: var(--muted);
-}
-
-.arch-arrow {
-  color: var(--accent);
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
-
-/* ── Footer ── */
-footer {
-  padding: 3rem 0 2rem;
-  text-align: center;
-  border-top: 1px solid var(--border);
-  margin-top: 4rem;
-}
-
-footer p {
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
+footer { padding:3rem 0 2rem; text-align:center; border-top:1px solid var(--border); margin-top:4rem; }
+footer p { font-size:0.6rem; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase; }
 </style>
 </head>
 <body>
@@ -587,13 +282,11 @@ footer p {
 
 <div class="container">
 
-  <!-- Header -->
   <header>
     <div class="logo">VibeTrack</div>
     <div class="badge">AIPI 540 · Deep Learning</div>
   </header>
 
-  <!-- Hero -->
   <section class="hero">
     <div class="hero-eyebrow">Music Recommendation System</div>
     <h1 class="hero-title">
@@ -601,46 +294,58 @@ footer p {
       <span class="line2">SOUNDTRACK</span>
     </h1>
     <p class="hero-desc">
-      A deep learning model that understands the mood of music — 
-      trained on 8,500 songs, select a feeling and discover what sounds like it.
+      A deep learning model that understands the mood of music —
+      trained on 8,500 songs. Describe a feeling or pick a mood below.
     </p>
   </section>
 
   <!-- Stats -->
   <div class="stats">
-    <div class="stat">
-      <div class="stat-val">0.72</div>
-      <div class="stat-label">ROC-AUC Score</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val">0.22</div>
-      <div class="stat-label">PR-AUC Score</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val">8.5K</div>
-      <div class="stat-label">Songs Indexed</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val">15</div>
-      <div class="stat-label">Mood Classes</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val">0.89</div>
-      <div class="stat-label">Best Tag AUC</div>
-    </div>
+    <div class="stat"><div class="stat-val">0.72</div><div class="stat-label">ROC-AUC Score</div></div>
+    <div class="stat"><div class="stat-val">0.22</div><div class="stat-label">PR-AUC Score</div></div>
+    <div class="stat"><div class="stat-val">8.5K</div><div class="stat-label">Songs Indexed</div></div>
+    <div class="stat"><div class="stat-val">15</div><div class="stat-label">Mood Classes</div></div>
+    <div class="stat"><div class="stat-val">0.89</div><div class="stat-label">Best Tag AUC</div></div>
   </div>
 
-  <!-- Mood picker -->
-  <div class="section-label">Select a mood</div>
+  <!-- ── Text Search ── -->
+  <div class="section-label">Describe your vibe</div>
 
-  <div class="mood-grid" id="moodGrid">
-    <!-- Injected by JS -->
+  <div class="text-search-wrap">
+    <input
+      type="text"
+      id="vibeInput"
+      class="vibe-input"
+      placeholder="e.g. dark mysterious night drive, workout pump up, rainy day chill..."
+      onkeydown="if(event.key==='Enter') searchByText()"
+    />
+    <button class="vibe-search-btn" onclick="searchByText()">→</button>
   </div>
+
+  <!-- Mood keyword hints -->
+  <div class="mood-hints" id="moodHints">
+    <span class="hint-label">Try:</span>
+    <!-- filled by JS -->
+  </div>
+
+  <!-- Matched moods row -->
+  <div class="matched-moods-row" id="matchedMoodsRow">
+    <span class="matched-label">Detected moods:</span>
+    <span id="matchedMoodsList"></span>
+  </div>
+
+  <!-- Error toast -->
+  <div class="error-toast" id="errorToast"></div>
+
+  <!-- ── Mood Grid ── -->
+  <div class="section-label">Or pick a mood directly</div>
+
+  <div class="mood-grid" id="moodGrid"></div>
 
   <!-- Loading -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <div class="loading-text">Scoring songs...</div>
+    <div class="loading-text">Finding your soundtrack...</div>
   </div>
 
   <!-- Results -->
@@ -660,7 +365,7 @@ footer p {
     <div class="arch-flow">
       <div class="arch-node">
         <div class="arch-node-title">Mood Query</div>
-        <div class="arch-node-sub">One-hot vector<br>15 dimensions</div>
+        <div class="arch-node-sub">Text or button<br>→ mood vector</div>
       </div>
       <div class="arch-arrow">→</div>
       <div class="arch-node">
@@ -685,7 +390,7 @@ footer p {
     </div>
   </div>
 
-</div><!-- /container -->
+</div>
 
 <footer>
   <div class="container">
@@ -712,9 +417,30 @@ const MOODS = [
   { name: 'fun',         emoji: '🎉',  color: '#f9a8d4' },
 ];
 
+// Keywords that hint at each mood — shown as clickable pills
+const HINT_EXAMPLES = [
+  'night drive', 'workout', 'rainy day', 'love song', 'study session',
+  'party', 'adventure', 'heartbreak', 'meditation', 'hype', 'nostalgia',
+  'chill', 'thriller', 'morning run', 'wedding'
+];
+
 let activeMood = null;
 
-// ── Render mood buttons ───────────────────────────────────────────────────────
+// ── Render mood hint pills ────────────────────────────────────────────────────
+function renderHints() {
+  const wrap = document.getElementById('moodHints');
+  wrap.innerHTML = '<span class="hint-label">Try:</span>' +
+    HINT_EXAMPLES.map(h => `
+      <button class="hint-pill" onclick="useHint('${h}')">${h}</button>
+    `).join('');
+}
+
+function useHint(hint) {
+  document.getElementById('vibeInput').value = hint;
+  searchByText();
+}
+
+// ── Render mood grid ──────────────────────────────────────────────────────────
 function renderMoods() {
   const grid = document.getElementById('moodGrid');
   grid.innerHTML = MOODS.map(m => `
@@ -731,56 +457,32 @@ function renderMoods() {
   `).join('');
 }
 
-// ── Select mood & fetch recommendations ──────────────────────────────────────
-async function selectMood(mood) {
-  if (activeMood === mood) return;
-
-  // Update active state
-  if (activeMood) {
-    document.getElementById(`btn-${activeMood}`)?.classList.remove('active');
-  }
-  activeMood = mood;
-  document.getElementById(`btn-${mood}`)?.classList.add('active');
-
-  // Show loading
-  const loading = document.getElementById('loading');
-  const resultsSection = document.getElementById('results-section');
-  loading.classList.add('visible');
-  resultsSection.classList.remove('visible');
-
-  try {
-    const res = await fetch('/api/recommend', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mood, top_k: 10 })
-    });
-
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    renderResults(data);
-  } catch (err) {
-    console.error(err);
-    alert('Error fetching recommendations. Is the server running?');
-  } finally {
-    loading.classList.remove('visible');
-  }
+// ── Shared UI helpers ─────────────────────────────────────────────────────────
+function showLoading() {
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('results-section').classList.remove('visible');
+  document.getElementById('errorToast').classList.remove('visible');
+  document.getElementById('matchedMoodsRow').classList.remove('visible');
 }
 
-// ── Render results ────────────────────────────────────────────────────────────
-function renderResults(data) {
-  const moodInfo = MOODS.find(m => m.name === data.mood) || {};
-  const resultsSection = document.getElementById('results-section');
-  const moodLabel      = document.getElementById('results-mood-label');
-  const countLabel     = document.getElementById('results-count');
-  const songList       = document.getElementById('song-list');
+function hideLoading() {
+  document.getElementById('loading').classList.remove('visible');
+}
 
-  moodLabel.textContent = data.mood.toUpperCase();
-  moodLabel.style.setProperty('--mood-color', moodInfo.color || '#6d28d9');
-  countLabel.textContent = `${data.results.length} tracks found`;
+function showError(msg) {
+  const toast = document.getElementById('errorToast');
+  toast.textContent = msg;
+  toast.classList.add('visible');
+}
 
-  const maxSim = Math.max(...data.results.map(r => r.similarity));
+function renderSongs(results, moodLabel, countLabel) {
+  document.getElementById('results-mood-label').textContent = moodLabel;
+  document.getElementById('results-count').textContent = countLabel;
 
-  songList.innerHTML = data.results.map((r, i) => {
+  const maxSim  = Math.max(...results.map(r => r.similarity));
+  const songList = document.getElementById('song-list');
+
+  songList.innerHTML = results.map(r => {
     const scorePct = maxSim > 0 ? (r.similarity / maxSim) * 100 : 50;
     const tags = r.mood_tags.map(t => `<span class="tag">${t}</span>`).join('');
     return `
@@ -801,13 +503,87 @@ function renderResults(data) {
     `;
   }).join('');
 
-  resultsSection.classList.add('visible');
+  document.getElementById('results-section').classList.add('visible');
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
-  // Scroll to results
-  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ── Mood button click ─────────────────────────────────────────────────────────
+async function selectMood(mood) {
+  // Clear text input
+  document.getElementById('vibeInput').value = '';
+  document.getElementById('matchedMoodsRow').classList.remove('visible');
+
+  // Deactivate previous button
+  if (activeMood) document.getElementById(`btn-${activeMood}`)?.classList.remove('active');
+  activeMood = mood;
+  document.getElementById(`btn-${mood}`)?.classList.add('active');
+
+  showLoading();
+
+  try {
+    const res  = await fetch('/api/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mood, top_k: 10 })
+    });
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    renderSongs(data.results, data.mood.toUpperCase(), `${data.results.length} tracks found`);
+  } catch (err) {
+    showError('Could not fetch recommendations. Is the server running?');
+  } finally {
+    hideLoading();
+  }
+}
+
+// ── Text search ───────────────────────────────────────────────────────────────
+async function searchByText() {
+  const query = document.getElementById('vibeInput').value.trim();
+  if (!query) return;
+
+  // Deactivate mood buttons
+  if (activeMood) {
+    document.getElementById(`btn-${activeMood}`)?.classList.remove('active');
+    activeMood = null;
+  }
+
+  showLoading();
+
+  try {
+    const res  = await fetch('/api/recommend/text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, top_k: 10 })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error || 'No moods detected. Try: happy, dark, chill, workout, romantic...');
+      hideLoading();
+      return;
+    }
+
+    // Show matched moods
+    const matchedRow  = document.getElementById('matchedMoodsRow');
+    const matchedList = document.getElementById('matchedMoodsList');
+    matchedList.innerHTML = data.matched_moods
+      .map(m => `<span class="matched-tag">${m}</span>`).join('');
+    matchedRow.classList.add('visible');
+
+    renderSongs(
+      data.results,
+      `"${query}"`,
+      `${data.results.length} tracks · blended: ${data.matched_moods.join(', ')}`
+    );
+  } catch (err) {
+    showError('Could not connect to server.');
+  } finally {
+    hideLoading();
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+renderHints();
 renderMoods();
 </script>
 </body>
