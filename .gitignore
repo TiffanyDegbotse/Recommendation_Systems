@@ -1,0 +1,3 @@
+data/processed/*.npy
+data/processed/*.pkl
+data/raw/
