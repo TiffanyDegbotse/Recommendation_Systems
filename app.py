@@ -1,18 +1,16 @@
 """
 VibeTrack — Flask Backend
 Mood-based Song Recommendation using ResNet-18 CNN on MTG-Jamendo
+Pre-computed mood scores loaded from song_index.json (no melspecs needed at runtime)
 """
 
 import os
+import json
 import numpy as np
 from pathlib import Path
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torchvision import models
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
@@ -24,166 +22,60 @@ MOOD_TAGS = [
     'uplifting', 'dramatic', 'peaceful', 'tense', 'fun'
 ]
 
-MODEL_DIR     = os.environ.get('MODEL_DIR', './models')
-MELSPEC_DIR   = os.environ.get('MELSPEC_DIR', './data/melspecs')
-METADATA_PATH = os.environ.get('METADATA_PATH', './data/autotagging_moodtheme.tsv')
-PORT          = int(os.environ.get('PORT', 5000))
-DEVICE        = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-TOP_K         = 10
+KEYWORD_MAP = {
+    'happy':       ['joy', 'joyful', 'cheerful', 'bright', 'sunny', 'upbeat', 'positive', 'good vibes'],
+    'sad':         ['cry', 'crying', 'grief', 'sorrow', 'blue', 'depressed', 'heartbreak', 'lonely'],
+    'energetic':   ['workout', 'gym', 'pump', 'hype', 'running', 'intense', 'power', 'adrenaline'],
+    'calm':        ['chill', 'study', 'focus', 'quiet', 'gentle', 'soft', 'mellow', 'lofi'],
+    'dark':        ['night', 'mysterious', 'shadow', 'gloomy', 'moody', 'noir', 'sinister'],
+    'epic':        ['cinematic', 'grand', 'powerful', 'adventure', 'heroic', 'battle', 'movie'],
+    'romantic':    ['love', 'date', 'crush', 'tender', 'sweet', 'intimate', 'passionate', 'wedding'],
+    'aggressive':  ['angry', 'rage', 'fury', 'metal', 'hard', 'fierce', 'mad'],
+    'relaxing':    ['sleep', 'relax', 'spa', 'meditation', 'ambient', 'rest', 'wind down'],
+    'melancholic': ['nostalgic', 'longing', 'wistful', 'bittersweet', 'yearning', 'memories'],
+    'uplifting':   ['inspire', 'motivate', 'hope', 'optimistic', 'rise', 'overcome', 'morning'],
+    'dramatic':    ['tension', 'suspense', 'emotional', 'climax', 'film', 'scene'],
+    'fun':         ['party', 'dance', 'playful', 'silly', 'bounce', 'festive', 'celebration'],
+    'tense':       ['anxious', 'nervous', 'thriller', 'scary', 'suspense', 'horror', 'stress'],
+    'peaceful':    ['nature', 'forest', 'ocean', 'zen', 'tranquil', 'serene', 'still', 'breeze'],
+}
 
-print(f'Using device: {DEVICE}')
-
-
-# ── Model Definition ──────────────────────────────────────────────────────────
-class MelspecCNNEncoder(nn.Module):
-    """ResNet-18 CNN encoder for mel-spectrograms."""
-
-    def __init__(self, embed_dim=512, n_moods=15):
-        super().__init__()
-        backbone = models.resnet18(pretrained=False)
-        backbone.conv1 = nn.Conv2d(
-            1, 64, kernel_size=7, stride=2, padding=3, bias=False
-        )
-        feature_dim = backbone.fc.in_features
-        backbone.fc = nn.Identity()
-        self.backbone = backbone
-        self.projection = nn.Sequential(
-            nn.Linear(feature_dim, feature_dim),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(feature_dim, embed_dim)
-        )
-        self.mood_classifier = nn.Linear(embed_dim, n_moods)
-
-    def forward(self, x):
-        features       = self.backbone(x)
-        embedding      = self.projection(features)
-        embedding_norm = F.normalize(embedding, dim=-1)
-        logits         = self.mood_classifier(embedding_norm)
-        return {'embedding': embedding_norm, 'logits': logits}
+DATA_DIR = os.environ.get('DATA_DIR', './data')
+PORT     = int(os.environ.get('PORT', 5000))
+TOP_K    = 10
 
 
-# ── Load Model ────────────────────────────────────────────────────────────────
-print('Loading audio encoder...')
-audio_encoder = MelspecCNNEncoder(embed_dim=512, n_moods=15).to(DEVICE)
-audio_encoder.load_state_dict(
-    torch.load(
-        os.path.join(MODEL_DIR, 'audio_encoder_best.pt'),
-        map_location=DEVICE
-    )
-)
-audio_encoder.eval()
-print('Model loaded.')
+# ── Load Pre-computed Song Index ──────────────────────────────────────────────
+print('Loading song index...')
+song_index_path = os.path.join(DATA_DIR, 'song_index.json')
+
+with open(song_index_path, 'r') as f:
+    SONGS = json.load(f)
+
+SONG_MOOD_PROBS = np.array(
+    [s['mood_probs'] for s in SONGS], dtype=np.float32
+)  # (N, 15)
+
+print(f'Loaded {len(SONGS):,} songs with pre-computed mood scores.')
+print(f'Mood matrix shape: {SONG_MOOD_PROBS.shape}')
 
 
-# ── Load Metadata ─────────────────────────────────────────────────────────────
-def load_metadata():
-    """Load MTG-Jamendo TSV metadata."""
-    rows = []
-    with open(METADATA_PATH, 'r') as f:
-        for i, line in enumerate(f):
-            if i == 0:
-                continue
-            parts = line.strip().split('\t')
-            if len(parts) < 5:
-                continue
-            tags = [
-                t.replace('mood/theme---', '').strip()
-                for t in parts[5:]
-                if t.startswith('mood/theme---') and
-                t.replace('mood/theme---', '').strip() in MOOD_TAGS
-            ]
-            if tags:
-                rows.append({
-                    'track_id':  parts[0],
-                    'path':      parts[3],
-                    'mood_tags': tags
-                })
-    return rows
-
-
-def has_melspec(song: dict) -> bool:
-    """Check if a mel-spectrogram file exists for this song."""
-    path       = song['path']
-    subdir     = path.split('/')[0]
-    numeric_id = path.split('/')[1].replace('.mp3', '')
-    npy_path   = Path(MELSPEC_DIR) / subdir / f'{numeric_id}.npy'
-    return npy_path.exists()
-
-
-print('Loading metadata...')
-ALL_SONGS = load_metadata()
-print(f'Total songs in metadata: {len(ALL_SONGS):,}')
-
-# ── Filter to only songs with available melspec files ─────────────────────────
-SONGS = [s for s in ALL_SONGS if has_melspec(s)]
-print(f'Songs with available melspecs: {len(SONGS):,} / {len(ALL_SONGS):,}')
-
-if len(SONGS) == 0:
-    print('WARNING: No melspec files found!')
-    print(f'  MELSPEC_DIR = {MELSPEC_DIR}')
-    print(f'  Exists: {Path(MELSPEC_DIR).exists()}')
-
-
-# ── Mel-spec Loading ──────────────────────────────────────────────────────────
-def load_melspec(path: str, n_mels=128, time_frames=1300) -> np.ndarray:
-    """Load and preprocess a mel-spectrogram .npy file."""
-    subdir     = path.split('/')[0]
-    numeric_id = path.split('/')[1].replace('.mp3', '')
-    npy_path   = Path(MELSPEC_DIR) / subdir / f'{numeric_id}.npy'
-
-    if not npy_path.exists():
-        return np.zeros((n_mels, time_frames), dtype=np.float32)
-
-    mel = np.load(str(npy_path)).astype(np.float32)
-    t = mel.shape[1]
-    if t < time_frames:
-        mel = np.pad(mel, ((0, 0), (0, time_frames - t)))
-    else:
-        mel = mel[:, :time_frames]
-
-    mel_min, mel_max = mel.min(), mel.max()
-    if mel_max > mel_min:
-        mel = 2 * (mel - mel_min) / (mel_max - mel_min) - 1
-    return mel
-
-
-# ── Pre-compute song mood scores at startup ───────────────────────────────────
-print('Pre-computing song mood scores...')
-SONG_MOOD_PROBS = []
-
-with torch.no_grad():
-    for i, song in enumerate(SONGS):
-        mel   = load_melspec(song['path'])
-        mel_t = torch.from_numpy(mel).unsqueeze(0).unsqueeze(0).to(DEVICE)
-        out   = audio_encoder(mel_t)
-        probs = torch.sigmoid(out['logits']).squeeze().cpu().numpy()
-        SONG_MOOD_PROBS.append(probs)
-
-        if (i + 1) % 100 == 0:
-            print(f'  Scored {i+1}/{len(SONGS)} songs...')
-
-SONG_MOOD_PROBS = np.vstack(SONG_MOOD_PROBS) if SONG_MOOD_PROBS else np.zeros((0, 15))
-print(f'Pre-computed {len(SONG_MOOD_PROBS):,} song mood vectors.')
-
-
-# ── Recommendation Logic ──────────────────────────────────────────────────────
-def recommend_by_mood(mood: str, top_k: int = TOP_K) -> list:
+# ── Core Retrieval ────────────────────────────────────────────────────────────
+def get_top_k(mood_vec: np.ndarray, top_k: int) -> list:
     """
-    Recommend top-K songs for a given mood using cosine similarity
-    between a one-hot mood query and pre-computed song mood vectors.
+    Cosine similarity between mood query vector and all song mood vectors.
+
+    Args:
+        mood_vec: Query vector of shape (15,)
+        top_k: Number of results to return
+
+    Returns:
+        List of result dicts sorted by similarity descending
     """
-    if len(SONG_MOOD_PROBS) == 0:
-        return []
-
-    mood_vec = np.zeros(len(MOOD_TAGS), dtype=np.float32)
-    mood_vec[MOOD_TAGS.index(mood)] = 1.0
-
     norms        = np.linalg.norm(SONG_MOOD_PROBS, axis=1, keepdims=True) + 1e-8
     normed_probs = SONG_MOOD_PROBS / norms
     similarities = normed_probs @ mood_vec
-
-    top_indices = np.argsort(similarities)[::-1][:top_k]
+    top_indices  = np.argsort(similarities)[::-1][:top_k]
 
     results = []
     for rank, idx in enumerate(top_indices, 1):
@@ -201,9 +93,54 @@ def recommend_by_mood(mood: str, top_k: int = TOP_K) -> list:
     return results
 
 
+def recommend_by_mood(mood: str, top_k: int = TOP_K) -> list:
+    """Recommend songs for a single mood tag via one-hot query vector."""
+    mood_vec = np.zeros(len(MOOD_TAGS), dtype=np.float32)
+    mood_vec[MOOD_TAGS.index(mood)] = 1.0
+    return get_top_k(mood_vec, top_k)
+
+
+def recommend_by_text(query: str, top_k: int = TOP_K) -> dict:
+    """
+    Recommend songs from a free-text mood description.
+    Detects mood keywords in the query, blends them into a
+    weighted query vector, and retrieves top-K songs.
+
+    Args:
+        query: Free-text string e.g. 'dark mysterious night drive'
+        top_k: Number of songs to return
+
+    Returns:
+        dict with matched_moods list and results list
+    """
+    query_lower = query.lower()
+
+    # Direct mood tag matches
+    matched_moods = [m for m in MOOD_TAGS if m in query_lower]
+
+    # Keyword-based fuzzy matches
+    for mood, keywords in KEYWORD_MAP.items():
+        if any(kw in query_lower for kw in keywords):
+            if mood not in matched_moods:
+                matched_moods.append(mood)
+
+    if not matched_moods:
+        return {'matched_moods': [], 'results': []}
+
+    # Blend matched moods equally into one query vector
+    mood_vec = np.zeros(len(MOOD_TAGS), dtype=np.float32)
+    for mood in matched_moods:
+        mood_vec[MOOD_TAGS.index(mood)] += 1.0
+    mood_vec = mood_vec / (mood_vec.sum() + 1e-8)
+
+    results = get_top_k(mood_vec, top_k)
+    return {'matched_moods': matched_moods, 'results': results}
+
+
 # ── API Routes ────────────────────────────────────────────────────────────────
 @app.route('/api/moods', methods=['GET'])
 def get_moods():
+    """Return available mood tags."""
     return jsonify({'moods': MOOD_TAGS})
 
 
@@ -227,13 +164,42 @@ def recommend():
     return jsonify({'mood': mood, 'results': results})
 
 
+@app.route('/api/recommend/text', methods=['POST'])
+def recommend_text():
+    """
+    POST /api/recommend/text
+    Body: { "query": "dark mysterious night drive", "top_k": 10 }
+    Returns: { "query": "...", "matched_moods": [...], "results": [...] }
+    """
+    data  = request.get_json()
+    query = data.get('query', '').strip()
+    top_k = int(data.get('top_k', TOP_K))
+
+    if not query:
+        return jsonify({'error': 'Query cannot be empty'}), 400
+
+    output = recommend_by_text(query, top_k=top_k)
+
+    if not output['matched_moods']:
+        return jsonify({
+            'error': 'No moods detected. Try words like: happy, dark, chill, workout, romantic...',
+            'matched_moods': [],
+            'suggestions': MOOD_TAGS
+        }), 400
+
+    return jsonify({
+        'query':         query,
+        'matched_moods': output['matched_moods'],
+        'results':       output['results']
+    })
+
+
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({
         'status':       'ok',
         'songs_loaded': len(SONGS),
-        'songs_total':  len(ALL_SONGS),
-        'device':       str(DEVICE),
+        'device':       'cpu',
         'moods':        MOOD_TAGS
     })
 
