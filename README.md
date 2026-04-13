@@ -74,7 +74,7 @@ Random song recommendation with no model. Serves as the performance floor. Expec
 **2. Classical ML**
 Hand-crafted image features (brightness, warmth, saturation, contrast) mapped to mood labels using an SVM classifier. No deep learning.
 
-**3. Deep Learning (this module)**
+**3. Deep Learning**
 ResNet-18 CNN trained end-to-end on mel-spectrograms with multi-label BCE loss. Achieves ROC-AUC 0.72 on the test set — significantly above both baselines.
 
 ---
