@@ -14,7 +14,7 @@ Under the hood, a ResNet-18 CNN was trained to listen to music and predict its m
 
 ---
 
-## Model Performance
+## Model Performance (Deep Learning)
 
 | Metric | Score |
 |--------|-------|
