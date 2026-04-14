@@ -75,7 +75,7 @@ Three scalar features (energy, brightness, variance) extracted directly from eac
 A 261 dimensional feature vector per track (128 mel band means, 128 mel band standard deviations, plus global energy and spectral statistics) fed to a OneVsRest Logistic Regression classifier. Retrieval via KNN over the resulting 15d mood probability vectors using cosine similarity.
 
 **3. Deep Learning**
-ResNet-18 CNN trained end-to-end on mel-spectrograms with multi-label BCE loss. Achieves ROC-AUC 0.72 on the test set — significantly above both baselines.
+ResNet-18 CNN trained end-to-end on mel-spectrograms with multi-label BCE loss. Achieves ROC-AUC 0.72 on the test set, significantly above both baselines.
 
 ---
 
