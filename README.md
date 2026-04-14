@@ -69,10 +69,10 @@ MTG-Jamendo is an open dataset for music auto-tagging built from Jamendo, a plat
 As required by the course rubric, three approaches were implemented and evaluated:
 
 **1. Naive Baseline**
-Random song recommendation with no model. Serves as the performance floor. Expected PR-AUC ~0.10 (label frequency).
+Three scalar features (energy, brightness, variance) extracted directly from each mel spectrogram. A rule based decision tree maps these to one of 15 mood buckets using percentile thresholds from the training split, and songs are scored by affinity map overlap. No learning involved.
 
 **2. Classical ML**
-Hand-crafted image features (brightness, warmth, saturation, contrast) mapped to mood labels using an SVM classifier. No deep learning.
+A 261 dimensional feature vector per track (128 mel band means, 128 mel band standard deviations, plus global energy and spectral statistics) fed to a OneVsRest Logistic Regression classifier. Retrieval via KNN over the resulting 15d mood probability vectors using cosine similarity.
 
 **3. Deep Learning**
 ResNet-18 CNN trained end-to-end on mel-spectrograms with multi-label BCE loss. Achieves ROC-AUC 0.72 on the test set — significantly above both baselines.
@@ -142,6 +142,3 @@ Environment variables required:
     DATA_DIR = ./data
 
 ---
-
-
-*AIPI 540 — Deep Learning Applications · Duke University · Spring 2026*
